@@ -10,9 +10,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class LocalMemoryAgent:
+class LocalFilesystemMemory:
     """
-    LocalMemoryAgent is a layer over Llama Index's GPTSimpleVectorIndex which
+    LocalFilesystemMemory is a layer over Llama Index's GPTSimpleVectorIndex which
     abstracts away the details of managing indexes saved on disk. It assumes /
     creates a directory structure for storing indexes and provides a simple /
     interface for managing them.
