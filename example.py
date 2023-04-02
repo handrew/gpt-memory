@@ -1,12 +1,12 @@
-from llama_index import SimpleDirectoryReader
-from gpt_memory import LocalMemoryAgent
+from llama_index import SimpleDirectoryReader, GPTSimpleVectorIndex
+from gpt_memory import LocalFilesystemMemory
 phil = SimpleDirectoryReader("gpt_memory/examples/phil")
 animals = SimpleDirectoryReader("gpt_memory/examples/animals")
 phil_docs = phil.load_data()
 animal_docs = animals.load_data()
 
-memory = LocalMemoryAgent("example")
-# memory.create_index("phil", phil_docs)
-# memory.create_index("animals", animal_docs)
+memory = LocalFilesystemMemory("example")
+memory.create_index("phil", phil_docs)
+animals = GPTSimpleVectorIndex.load_from_disk("animals.json")
+memory.add_index("animals", animals)
 query = "What is a capybara?"
-print(memory.query(query))
