@@ -113,6 +113,14 @@ class LocalFilesystemMemory:
             summaries.append(summary)
         return summaries
 
+    def __get_summary_description(self, summary_docs) -> str:
+        """Get a summary description from a list of Documentt objects."""
+        logger.info("Generating description for index...")
+        summary_index = GPTListIndex(summary_docs)
+        resp = summary_index.query("Summarize the documents.")
+        description = resp.response
+        return description
+
     """CRUD and related public methods for indexes."""
 
     @property
@@ -120,6 +128,41 @@ class LocalFilesystemMemory:
         """Get the metadata."""
         with open(self.metadata_file, "r") as f:
             return json.load(f)
+
+    def add_index(self, name, index, description=None):
+        """Add an index to memory."""
+        logger.info("Adding index to memory...")
+        key = list(index._docstore.docs.keys())[0]
+        docs_dict = index._docstore.docs[key].nodes_dict
+        docs = []
+        for key in docs_dict.keys():
+            docs.append(Document(docs_dict[key].text))
+        
+        summaries = self.__get_summaries_from_docs(docs)
+        summary_docs = [Document(summary) for summary in summaries]
+        if description is None:
+            description = self.__get_summary_description(summary_docs)
+
+        metadata = self.metadata
+        # Ensure that the index name is unique.
+        for index_description in metadata["index_descriptions"]:
+            if index_description["name"] == name:
+                logger.info("Index name already exists.")
+                return
+
+        # Update the metadata.
+        metadata["index_count"] += 1
+        metadata["index_descriptions"].append(
+            {
+                "name": name,
+                "description": description,
+            }
+        )
+        self.__save_metadata(metadata)
+
+        # Save the index to disk and add it to the indexes dictionary.
+        index.save_to_disk(self.__get_index_path(name))
+        self.indexes[name] = index
 
     def create_index(self, name, docs, description=None):
         """Create a new index."""
@@ -129,16 +172,14 @@ class LocalFilesystemMemory:
         logger.info("Generating index...")
         index = GPTSimpleVectorIndex(docs)
         if description is None:
-            logger.info("Generating description for index...")
-            summary_index = GPTListIndex(summary_docs)
-            resp = summary_index.query("Summarize the documents.")
-            description = resp.response
+            description = self.__get_summary_description(summary_docs)
 
         metadata = self.metadata
         # Ensure that the index name is unique.
         for index_description in metadata["index_descriptions"]:
             if index_description["name"] == name:
-                raise Exception("Index name already exists.")
+                logger.info("Index name already exists.")
+                return
 
         # Update the metadata.
         metadata["index_count"] += 1
@@ -181,7 +222,7 @@ class LocalFilesystemMemory:
         if name in self.indexes:
             return self.indexes[name]
         else:
-            raise Exception("Index does not exist.")
+            raise Exception(f"Index {name} does not exist.")
 
     def query_index(self, name, prompt, top_k=1):
         """Query an existing index."""
@@ -214,4 +255,8 @@ class LocalFilesystemMemory:
         # Find the most relevant index.
         index_name = self.find_most_relevant_index(prompt)
         # Query the index.
-        return self.query_index(index_name, prompt)
+        try:
+            return self.query_index(index_name, prompt)
+        except Exception:
+            logger.info("Relevant index not found.")
+            None

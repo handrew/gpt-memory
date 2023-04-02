@@ -1,1 +1,1 @@
-from .local_memory_agent import LocalMemoryAgent
+from .local_filesystem_memory import LocalFilesystemMemory
