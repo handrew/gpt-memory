@@ -1,4 +1,4 @@
-# 🧠 MemoryAgent
+# 🧠 GPT Memory
 
 LocalFilesystemMemory is a layer over Llama Index's GPTSimpleVectorIndex which
 abstracts away the details of managing indexes saved on disk. It assumes /
