@@ -8,5 +8,5 @@ animal_docs = animals.load_data()
 memory = LocalMemoryAgent("example")
 # memory.create_index("phil", phil_docs)
 # memory.create_index("animals", animal_docs)
-query = "Where was the protagonist Zarathustra written in?"
+query = "What is a capybara?"
 print(memory.query(query))
