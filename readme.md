@@ -1,9 +1,6 @@
 # 🧠 GPT Memory
 
-LocalFilesystemMemory is a layer over Llama Index's GPTSimpleVectorIndex which
-abstracts away the details of managing indexes saved on disk. It assumes /
-creates a directory structure for storing indexes and provides a simple /
-interface for managing them.
+LocalFilesystemMemory is a layer over Llama Index's GPTSimpleVectorIndex which abstracts away the details of managing indexes saved on disk. It assumes / creates a directory structure for storing indexes and provides a simple interface for managing them.
 
 ## LocalFilesystemMemory
 
