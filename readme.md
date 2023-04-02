@@ -5,7 +5,7 @@ abstracts away the details of managing indexes saved on disk. It assumes /
 creates a directory structure for storing indexes and provides a simple /
 interface for managing them.
 
-## How it works
+## LocalFilesystemMemory
 
 1. Instantiate the memory with a folder where it will store its persistent memory.
 2. Create and name indexes. It will automatically generate a summary of the documents you provide.
@@ -22,15 +22,28 @@ phil_docs = phil.load_data()
 animal_docs = animals.load_data()
 
 memory = LocalFilesystemMemory("example")
-# memory.create_index("phil", phil_docs)
-# memory.create_index("animals", animal_docs)
+memory.create_index("phil", phil_docs)
+memory.create_index("animals", animal_docs)
 query = "What is a capybara?"
 print(memory.query(query))
 ```
 
 Returns: ```A capybara is a giant cavy rodent native to South America, which is the largest living rodent and a member of the genus Hydrochoerus. It inhabits savannas and dense forests, lives near bodies of water, and is a highly social species that can be found in groups as large as 100 individuals. The capybara is hunted for its meat and hide and also for grease from its thick fatty skin, but it is not considered a threatened species.```
 
+### Methods
 
+- ```memory.query(prompt)```: The main entrypoint to ask a question.
+- ```memory.create_index(name, docs, description=None)```: The main way to create an index. Docs can be strings, lists of strings, or lists of GPTIndex's Document objects.
+- ```memory.update_index(name, docs)```: Update an index with new docs.
+- ```memory.delete_index(name)```: Delete an index.
+
+Under the hood, those functions use:
+- ```memory.get_index(name)```
+- ```memory.query_index(name, prompt)```
+- ```memory.find_most_relevant_index(prompt)```
+
+
+### Under the hood
 Under the hood, the directory structure is as follows:
 ```
 - index_folder/
